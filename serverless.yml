@@ -1,0 +1,25 @@
+
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - rekognition:DetectLabels
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - translate:TranslateText
+          Resource: "*"
+
+functions:
+  lambda-image-analysis:
+    handler: src/handler.run
+    events:
+      - httpApi:
+          path: /analyse
+          method: get
