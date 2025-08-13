@@ -1,22 +1,30 @@
-import { RekognitionClient } from "@aws-sdk/client-rekognition";
-import { TranslateClient } from "@aws-sdk/client-translate";
+import { Rekognition, DetectLabelsCommand } from "@aws-sdk/client-rekognition";
 
 class Handler {
-  private rekognition: RekognitionClient;
-  private translate: TranslateClient;
+  private rekognition: Rekognition;
 
-  constructor(rekognition: RekognitionClient, translate: TranslateClient) {
+  constructor(rekognition: Rekognition) {
     this.rekognition = rekognition;
-    this.translate = translate;
+  }
+
+  async detectImageLabels(buffer: Buffer) {
+    const result = await this.rekognition.send(new DetectLabelsCommand({ Image: { Bytes: buffer } }));
+
+    if (result.Labels) {
+      return result.Labels
+        .filter(label => Number(label.Confidence) > 80)
+        .map(label => (label.Name))
+        .join(' and ')
+    }
+
+    return '';
   }
 }
 
 export function makeHandler() {
-  const rekognitionClient = new RekognitionClient();
-  const translateClient = new TranslateClient();
+  const rekognitionClient = new Rekognition();
 
-
-  const handler = new Handler(rekognitionClient, translateClient);
+  const handler = new Handler(rekognitionClient);
 
   return handler;
 }
