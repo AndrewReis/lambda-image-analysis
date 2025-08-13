@@ -1,6 +1,6 @@
 node_modules
 .serverless
-.build
-.dist
+build
+dist
 .env
 coverage
